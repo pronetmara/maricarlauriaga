@@ -232,6 +232,19 @@ EX.1 CREATE A FIREWALL POLICY NAMED PROWEBAPP1 TO OPEN
 WWW.WEB8.COM HAS HTTP AND HTTPS AS OPEN
 WWW.WEB9.COM HAS SSH AND DNS OPEN
 formula:       PROTOCOL    HACKER    VICTIM     PORT:
+        tcp, udp, icmp, IP  any   web8, web9
+Ports
+7/tcp   open  echo
+9/tcp   open  discard
+13/tcp  open  daytime
+19/tcp  open  chargen
+22/tcp  open  ssh
+23/tcp  open  telnet
+53/tcp  open  domain
+79/tcp  open  finger
+80/tcp  open  http
+443/tcp open  https
+
 config t
 no ip access-list extended PROWEBAPP1
 ip access-list extended PROWEBAPP1
@@ -256,27 +269,74 @@ Interface Gi 3
  ip access-group PROWEBAPP2 in
  do sh ip access-list PROWEBAPP1
 
-EX.4 CREATE A FIREWALL POLICY NAMED PROWEBAPP4 TO OPEN
+EX.4 CREATE A FIREWALL POLICY NAMED PROTECTWEB1 TO OPEN
 WWW.WEB8.COM HAS ping, dns, https OPEN
-WWW.WEB9.COM HAS everything OPEN!
+WWW.WEB9.COM HAS ssh, http. OPEN
 config t
-no ip access-list extended PROWEBAPP4
-ip access-list extended PROWEBAPP4
-Permit icmp any host www.web8.com
-Permit tcp any host www.web8.com eq 53
-Permit tcp any host www.web8.com eq 443
-Permit IP any host www.web9.com
+no ip access-list extended PROTECTWEB1
+ip access-list extended PROTECTWEB1
+Permit tcp any host www.web8.com eq 53 log
+Permit tcp any host www.web8.com eq 443 log
+Permit tcp any host www.web9.com eq 22 log
+Permit tcp any host www.web9.com eq 80 log
+Permit icmp any host www.web9.com log
 Interface Gi 3
- ip access-group PROWEBAPP4 in
- do sh ip access-list PROWEBAPP4
+ ip access-group PROTECTWEB1 in
+ do sh ip access-list PROTECTWEB1
 
 EX.5 CREATE A FIREWALL POLICY NAMED LASTFWP TO OPEN
 WWW.WEB8.COM HAS ping, chargen, finger, http as Open
 WWW.WEB9.COM HAS ssh, telnet, daytime, dns, https as Open:
 if you canNOT make the Policy, you work in Jollibee.
 config t
+no ip access-list extended LASTFWP
+ip access-list extended LASTFWP
+Permit tcp any host www.web8.com eq 19 log
+Permit tcp any host www.web8.com eq 79 log
+Permit tcp any host www.web8.com eq 80 log
+Permit tcp any host www.web9.com eq 22 log
+Permit tcp any host www.web9.com eq 23 log
+Permit tcp any host www.web9.com eq 13 log
+Permit tcp any host www.web9.com eq 53 log
+Permit tcp any host www.web9.com eq 443 log
+Permit icmp any host www.web9.com log
+Interface Gi 3
+ ip access-group LASTFWP in
+ do sh ip access-list LASTFWP
+
 Interface Gi 3
  NO ip access-group LASTFWP in
+
+EX.5 CREATE A FIREWALL POLICY NAMED LASTFWP2 TO OPEN
+WWW.WEB8.COM HAS http, https as Open
+WWW.WEB9.COM HAS telnet, ssh, dns as Open:
+if you canNOT make the Policy, you work in Jollibee.
+config t
+no ip access-list extended LASTFWP2
+ip access-list extended LASTFWP2
+Permit tcp any host www.web8.com eq 80 log
+Permit tcp any host www.web8.com eq 443 log
+Permit tcp any host www.web9.com eq 23 log
+Permit tcp any host www.web9.com eq 22 log
+Permit tcp any host www.web9.com eq 53 log
+Permit icmp any host www.web9.com log
+Interface Gi 3
+ ip access-group LASTFWP2 in
+ do sh ip access-list LASTFWP2
+
+EX.6 CREATE A FIREWALL POLICY NAMED LASTFWP3 TO OPEN
+WWW.WEB8.COM HAS https as Open
+WWW.WEB9.COM HAS ssh as Open:
+if you canNOT make the Policy, you work in Jollibee.
+config t
+no ip access-list extended LASTFWP3
+ip access-list extended LASTFWP3
+Permit tcp any host www.web8.com eq 443 log
+Permit tcp any host www.web9.com eq 22 log
+Interface Gi 3
+ ip access-group LASTFWP3 in
+ do sh ip access-list LASTFWP3
+
 
 TASK8: CONFIGURING CISCO NETWORK SERVICES:
 NETWORK TIME PROTOCOL OR NTP 
@@ -286,6 +346,15 @@ config t
 ntp server 216.239.35.8
 end
 show ntp associations
+
+GIVE IP ADDRESS TO LINUX BLDGONE AND BLDGTWO
+sudo su
+bldg1:
+ifconfig eth0 192.168.103.11 netmask 255.255.255.0 up
+route add default gw 192.168.103.5
+bldg2:
+ifconfig eth0 192.168.103.12 netmask 255.255.255.0 up
+route add default gw 192.168.103.5
 
 TASK9: NAT: NETWORK ADDRESS TRANSLATION SERVICE:
 nat, proxy, hotspot, tethering, = PENGE INTERNET
@@ -305,8 +374,8 @@ no access-list 7
 access-list 7 permit 192.168.102.0 0.0.0.255
 access-list 7 permit 192.168.103.0 0.0.0.255
 ip nat inside source list 7 interface Gi 1 overload
-ip nat inside source static 192.168.102.69 192.168.108.69
-ip nat inside source static 192.168.103.88 192.168.108.88
+ip nat inside source static 192.168.103.11 192.168.108.69
+ip nat inside source static 192.168.103.12 192.168.108.88
 end
 
 TASK10: DO YOU HAVE TO REPLACED BY A.I AT WORK? REPLACED BY
