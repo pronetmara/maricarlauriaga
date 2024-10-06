@@ -187,10 +187,10 @@ intentionally hackable websites
 8. OWASP Mutillidae II
 9. HackThis!!
 
-task6: How to Make CUCM intentionally hackable to Learn
+TASK6: How to Make CUCM intentionally hackable to Learn
 the Basics for Firewalls.
 before: nmap -v 10.m.100.8
-@Cucm:
+@Cucm: fa 0/0/ or CSR100V - gi3
 config t
 int Gi 3
  no shut
