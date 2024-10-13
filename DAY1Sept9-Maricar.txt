@@ -102,11 +102,11 @@ ip dhcp pool VOICEVLAN
 ( LINE 103 to 141 PASTE TO COREBABA SWITCH )
 config t
 vlan 10
-   name WIFIVLAN
+name WIFIVLAN
 vlan 50
-   name IPCCTVLAN
+name IPCCTVLAN
 vlan 69
-   name UPPERMGMT
+name UPPERMGMT
 vlan 70
     name ACCOUNTING
 vlan 71
